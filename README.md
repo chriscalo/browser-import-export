@@ -2,7 +2,7 @@
 A lightweight ES modules-inspired module system for rapid prototyping in the browser
 
 
-## Debugging
+## Getting started
 
 With this simple module system, it becomes possible to have asynchronous modules
 in the browser for rapid prototyping. This makes it easier to write your
