@@ -14,7 +14,7 @@ dependency order.
 <!DOCTYPE html>
 <meta charset="utf-8"/>
 
-<script src="//cdn.jsdelivr.net/npm/browser-import-export@0.1.1/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/browser-import-export/index.js"></script>
 
 <script type="module">
 (async () => {
