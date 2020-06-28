@@ -7,8 +7,7 @@ A lightweight ES modules-inspired module system for rapid prototyping in the bro
 With this simple module system, it becomes possible to have asynchronous modules
 in the browser for rapid prototyping. This makes it easier to write your
 JavaScript within an HTML file in the order that makes sense to you, instead of
-trying to ensure that you order all of your JavaScript code is authored in
-dependency order.
+trying to ensure that all of your JavaScript is authored in dependency order.
 
 ```html
 <!DOCTYPE html>
