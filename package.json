@@ -5,5 +5,11 @@
   "main": "index.js",
   "repository": "https://github.com/chriscalo/browser-import-export.git",
   "author": "Chris Calo <chris.calo@gmail.com>",
-  "license": "The Unlicense"
+  "license": "The Unlicense",
+  "scripts": {
+    "dev": "http-server ."
+  },
+  "devDependencies": {
+    "http-server": "^0.12.3"
+  }
 }

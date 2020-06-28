@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <script src="./index.js"></script>
+  </head>
+  <body>
+    <script>
+      require(["msg", "name"], (msg, name) => {
+        console.log({ msg, name });
+        const textNode = document.createTextNode(msg(name));
+        document.body.appendChild(textNode);
+      });
+    </script>
+
+    <script>
+      define("msg", () => {
+        console.log("msg callback");
+        return (name) => `Hello, ${name}!`;
+      });
+    </script>
+
+    <script>
+      define("name", () => {
+        console.log("name callback");
+        return "World";
+      });
+    </script>
+
+  </body>
+
+</html>
