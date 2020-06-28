@@ -28,6 +28,42 @@ dependency order.
 </script>
 ```
 
+## `require()` and `define()`
+
+Also available are some AMD-inspired `require()` and `define()` functions.
+
+``` html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <script src="https://cdn.jsdelivr.net/npm/browser-import-export/index.js"></script>
+  </head>
+  <body>
+    <script>
+      require(["msg", "name"], (msg, name) => {
+        const textNode = document.createTextNode(msg(name));
+        document.body.appendChild(textNode);
+      });
+    </script>
+    
+    <script>
+      define("msg", () => {
+        return (name) => `Hello, ${name}!`;
+      });
+    </script>
+    
+    <script>
+      define("name", () => {
+        return "World";
+      });
+    </script>
+    
+  </body>
+</html>
+```
+
+
 ## Debugging
 
 If something doesn't seem to be working as expected, you can use the
