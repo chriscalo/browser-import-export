@@ -86,6 +86,43 @@
 ### NFR-6: Publishing and Distribution
 - Must auto-publish to GitHub Packages on release
 - Package must be available for installation via npm from GitHub registry
+- Must use GitHub Actions workflow triggered by version tags (v*.*.*) or manual dispatch
+- Example workflow implementation:
+  ```yaml
+  name: Publish Package
+  
+  on:
+    push:
+      tags:
+        - 'v*.*.*'
+    workflow_dispatch:
+  
+  jobs:
+    publish:
+      runs-on: ubuntu-latest
+      permissions:
+        contents: read
+        packages: write
+      steps:
+        - uses: actions/checkout@v4
+        
+        - uses: actions/setup-node@v4
+          with:
+            node-version: '20'
+            registry-url: 'https://npm.pkg.github.com'
+            scope: '@chriscalo'
+        
+        - run: npm ci
+        
+        - name: Install Playwright Browsers
+          run: npx playwright install chromium
+        
+        - run: npm test
+        
+        - run: npm publish
+          env:
+            NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  ```
 
 ### NFR-7: Testing Requirements
 - Must include `index.test.html` file that runs tests in a browser and logs results
