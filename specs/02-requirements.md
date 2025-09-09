@@ -17,28 +17,25 @@
 
 #### FR-2: Module Import
 - **Description**: Allow scripts to import one or more modules by name
-- **API**: `module.import(...names)` or `module.import(nameArray)`
+- **API**: `module.import(...names)`
 - **Behavior**:
-  - Must accept variable arguments or array of module names
+  - Must accept variable arguments of module names
   - Must return Promise that resolves to imported modules
   - Must support importing modules that haven't been exported yet
   - Must resolve Promise when all requested modules become available
 
 #### FR-3: Multiple Import Patterns
-- **Description**: Support both array and object destructuring of imports
+- **Description**: Must support named destructuring of imports
 - **Examples**:
   ```javascript
-  // Array destructuring
-  const [utils, dom] = await module.import("utils", "dom");
-  
   // Object destructuring with automatic camelCase conversion
   const { utils, domHelpers } = await module.import("utils", "dom-helpers");
   ```
 - **Behavior**:
-  - Import results must be array-like for indexed access
-  - Import results must have named properties for destructuring
-  - Module names must be converted to camelCase property names
-  - Original kebab-case names must also be available as properties
+  - Import results must support named destructuring
+  - Must support named properties for destructuring
+  - Module names must be converted to camelCase property names as additional property names
+  - Original kebab-case names must also be available as additional property names
 
 #### FR-4: Name Transformation
 - **Description**: Convert module names to valid JavaScript identifiers
@@ -73,18 +70,29 @@
 ### NFR-3: Size Constraints
 - Total implementation should be under 150 lines of code (simplified without AMD compatibility)
 - Minified size should be under 4KB
-- Zero external dependencies
-- Maintain backward compatibility with existing core module API
+- Zero runtime dependencies (dev dependencies okay)
 
 ### NFR-4: Error Handling
-- Must provide clear error messages for common mistakes
+- Must provide clear error messages for users
 - Must handle edge cases gracefully (duplicate exports, missing modules, etc.)
 - Errors should include context (module names, operation types)
+- Must detect once the page has loaded but there are unresolved imports and provide helpful warnings
 
 ### NFR-5: API Consistency
 - API should feel familiar to developers who know ES modules
 - Method names and behaviors should be predictable
 - Return types should be consistent
+
+### NFR-6: Publishing and Distribution
+- Must auto-publish to GitHub Packages on release
+- Package must be available for installation via npm from GitHub registry
+
+### NFR-7: Testing Requirements
+- Must include `index.test.html` file that runs tests in a browser and logs results
+- Must include `index.test.js` that uses `node:test` and `node:assert` modules
+- `index.test.js` must use Puppeteer to run headless Chrome to load `index.test.html`, grab console output, and report test results
+- Browser testing framework based on [chriscalo/browser-test-framework](https://github.com/chriscalo/browser-test-framework) approach
+- `index.test.html` will likely use `test` and `assert` from `chriscalo/browser-test-framework`
 
 ## Use Case Scenarios
 
@@ -92,8 +100,8 @@
 ```javascript
 // Script 1: Export a utility module
 module.export("utils", {
-  formatDate: (date) => date.toISOString(),
-  parseJSON: (str) => JSON.parse(str)
+  formatDate: function(date) { return date.toISOString(); },
+  parseJSON: function(str) { return JSON.parse(str); }
 });
 
 // Script 2: Import and use the module
@@ -114,7 +122,7 @@ module.export("app", {
 
 // Script 2: Define dependencies later
 module.export("http", { get: fetch });
-module.export("dom", { render: (data) => document.body.innerHTML = data });
+module.export("dom", { render: function(data) { document.body.innerHTML = data; } });
 ```
 
 ### UC-3: Debug and Troubleshooting
@@ -140,11 +148,8 @@ try {
 - Implementation must be self-contained in a single file
 
 ### Business Constraints  
-- Must maintain backward compatibility with existing API
-- Changes should be additive rather than breaking
-- Migration path should be smooth for existing users
+- Implementation must be self-contained in a single file
 
 ### Security Constraints
 - Must not eval() arbitrary code
 - Must not expose internal implementation details globally
-- Must validate inputs to prevent injection attacks
