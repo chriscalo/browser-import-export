@@ -25,14 +25,17 @@
   - Must resolve Promise when all requested modules become available
 
 #### FR-3: Multiple Import Patterns
-- **Description**: Must support named destructuring of imports
+- **Description**: Must support both indexed AND named destructuring of imports
 - **Examples**:
   ```javascript
+  // Array destructuring (positional access)
+  const [utils, domHelpers] = await module.import("utils", "dom-helpers");
+  
   // Object destructuring with automatic camelCase conversion
   const { utils, domHelpers } = await module.import("utils", "dom-helpers");
   ```
 - **Behavior**:
-  - Import results must support named destructuring
+  - Import results must support both indexed AND named destructuring
   - Must support named properties for destructuring
   - Module names must be converted to camelCase property names as additional property names
   - Original kebab-case names must also be available as additional property names
@@ -70,7 +73,7 @@
 ### NFR-3: Size Constraints
 - Total implementation should be under 150 lines of code (simplified without AMD compatibility)
 - Minified size should be under 4KB
-- Zero runtime dependencies (dev dependencies okay)
+- No external dependencies should be bundled into the distribution that end users consume from this package (dev dependencies okay)
 
 ### NFR-4: Error Handling
 - Must provide clear error messages for users
@@ -108,7 +111,7 @@
         
         - uses: actions/setup-node@v4
           with:
-            node-version: '20'
+            node-version: '24'
             registry-url: 'https://npm.pkg.github.com'
             scope: '@chriscalo'
         
@@ -128,7 +131,7 @@
 - Must include `index.test.html` file that runs tests in a browser and logs results
 - Must include `index.test.js` that uses `node:test` and `node:assert` modules
 - `index.test.js` must use Puppeteer to run headless Chrome to load `index.test.html`, grab console output, and report test results
-- Browser testing framework based on [chriscalo/browser-test-framework](https://github.com/chriscalo/browser-test-framework) approach
+- Browser testing framework: we'll install `chriscalo/browser-test-framework`
 - `index.test.html` will likely use `test` and `assert` from `chriscalo/browser-test-framework`
 
 ## Use Case Scenarios
@@ -137,8 +140,8 @@
 ```javascript
 // Script 1: Export a utility module
 module.export("utils", {
-  formatDate: function(date) { return date.toISOString(); },
-  parseJSON: function(str) { return JSON.parse(str); }
+  formatDate(date) { return date.toISOString(); },
+  parseJSON(str) { return JSON.parse(str); }
 });
 
 // Script 2: Import and use the module
@@ -159,7 +162,7 @@ module.export("app", {
 
 // Script 2: Define dependencies later
 module.export("http", { get: fetch });
-module.export("dom", { render: function(data) { document.body.innerHTML = data; } });
+module.export("dom", { render(data) { document.body.innerHTML = data; } });
 ```
 
 ### UC-3: Debug and Troubleshooting

@@ -6,6 +6,9 @@
   "repository": "https://github.com/chriscalo/browser-import-export.git",
   "author": "Chris Calo <chris.calo@gmail.com>",
   "license": "The Unlicense",
+  "volta": {
+    "node": "24.0.0"
+  },
   "scripts": {
     "dev": "http-server ."
   },

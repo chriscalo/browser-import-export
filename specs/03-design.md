@@ -2,9 +2,7 @@
 
 *This document provides the technical design and implementation specification for the browser module system described in [01-overview.md](./01-overview.md) and [02-requirements.md](./02-requirements.md).*
 
-## Implementation Reference
-
-The implementation must follow the reference implementation closely in [specs/browser-modules.js](./browser-modules.js). This reference provides the exact patterns, structure, and approach that should be used.
+## Implementation Principles
 
 ### 1. Simplicity and Clarity
 Implementation strengths:
@@ -35,7 +33,7 @@ The module system uses a centralized registry pattern with Promise-based depende
 1. **Module Registry**: A Map storing module metadata and resolution state
 2. **Promise Coordination**: Using native Promises to handle async dependencies  
 3. **Name Transformation**: Converting module names to valid JavaScript identifiers
-4. **Hybrid Return Types**: Objects supporting named access patterns
+4. **Hybrid Return Types**: Arrays that also support named access patterns
 
 ## Core Components
 
@@ -69,15 +67,18 @@ globalThis.module = {
 
 ## Key Design Decisions
 
-### Decision 1: Named Property Returns
+### Decision 1: Hybrid Array/Object Returns
 
-**Rationale**: Supporting object destructuring patterns increases developer flexibility:
+**Rationale**: Supporting both array and object destructuring patterns increases developer flexibility:
 ```javascript
+// Array destructuring - positional
+const [utils, dom] = await module.import("utils", "dom");
+
 // Object destructuring - named
 const { utils, dom } = await module.import("utils", "dom");  
 ```
 
-**Implementation**: Return objects that add named properties for each module.
+**Implementation**: Return arrays that also have named properties for each module.
 
 ### Decision 2: Name Transformation Strategy
 
@@ -120,22 +121,25 @@ throw new Error(`[module.export] Module "${name}" already exported`);
 
 ### module.import(...names)
 
-**Signature**: `importModules(...args: string[]) => Promise<ModuleObject>`
+**Signature**: `importModules(...args: string[]) => Promise<ModuleArray>`
 
 **Behavior**:
 1. Flatten all arguments into array of module names
 2. Create promises for each module (using `get()`)  
-3. Wait for all promises to resolve
-4. Create result object
-5. Add camelCase property names for object destructuring
-6. Add original names as properties (in case of conflicts)
+3. Wait for all promises to resolve using `Promise.all()`
+4. Create result array with imported modules
+5. Add camelCase property names for named destructuring
+6. Add original names as properties (for fallback access)
+
+**Return Type**: `ModuleArray` - Array that supports both indexed and named destructuring
 
 **Example**:
 ```javascript
 const result = await module.import("utils", "dom-helpers");
-// result.utils === utils module
-// result.domHelpers === dom-helpers module  
-// result["dom-helpers"] === dom-helpers module
+// Array access: result[0] === utils, result[1] === dom-helpers
+// Named access: result.utils === utils module
+// Named access: result.domHelpers === dom-helpers module  
+// Named access: result["dom-helpers"] === dom-helpers module
 ```
 
 ### module.export(name, value)
@@ -180,8 +184,31 @@ function get(name) {
 // Main import function  
 async function importModules(...args) {
   const names = args.flat();
-  const results = await resolveAll(names);  
-  return createNamedObject(results);
+  const results = await resolveAll(names);
+  const importedModules = results.map(result => result.module);
+  
+  // Add camelCase names for named destructuring
+  for (const { name, module } of results) {
+    const key = toCamelCase(name);
+    importedModules[key] = module;
+  }
+  
+  // Add original module names as fallback
+  for (const { name, module } of results) {
+    const key = name;
+    importedModules[key] = module;
+  }
+  
+  return importedModules;
+}
+
+// Helper function to resolve all module promises
+async function resolveAll(names) {
+  const promises = names.map(async (name, index) => {
+    const module = await get(name).promise;
+    return { index, name, module };
+  });
+  return await Promise.all(promises);
 }
 
 // Main export function
@@ -192,6 +219,12 @@ function exportModule(name, value) {
   module.value = value;
   module.resolved = true; 
   module.resolve(value);
+  console.debug(`[module] Exported: ${name}`);
+}
+
+// Debug utility
+function debug() {
+  console.log(modules);
 }
 ```
 
@@ -243,11 +276,6 @@ Test in Chrome to ensure compatibility:
 - Maintain zero-dependency policy
 - Keep implementation under 150 lines  
 - Preserve simplicity over feature richness
-
-### Development Environment
-
-- Remove all traces of Yarn from the project
-- Use npm for package management
 
 ## Implementation Summary
 
