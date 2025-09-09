@@ -48,29 +48,9 @@
   - Convert kebab-case to camelCase
   - Examples: "dom-helpers" → "domHelpers", "@utils/string" → "utilsString"
 
-### Compatibility Features
-
-#### FR-5: AMD-style Define
-- **Description**: Support AMD-compatible module definition
-- **API**: `define(name, dependencies, callback)` or `define(name, callback)`
-- **Behavior**:
-  - Must accept optional dependency array
-  - Must call callback with resolved dependencies
-  - Must export result using module.export internally
-  - Must support both 2-arg and 3-arg signatures
-
-#### FR-6: AMD-style Require
-- **Description**: Support AMD-compatible module consumption
-- **API**: `require(dependencies, callback)` or `require(callback)`
-- **Behavior**:
-  - Must accept array of dependency names
-  - Must call callback with resolved dependencies
-  - Must validate that callback is a function
-  - Must validate that dependencies is an array of strings
-
 ### Debugging and Utilities
 
-#### FR-7: Debug Utilities
+#### FR-5: Debug Utilities
 - **Description**: Provide debugging information about module system state
 - **API**: `module.debug()`
 - **Behavior**:
@@ -91,10 +71,10 @@
 - Must not require transpilation or build tools
 
 ### NFR-3: Size Constraints
-- Total implementation should be under 200 lines of code (currently ~170 lines projected)
-- Minified size should be under 5KB
+- Total implementation should be under 150 lines of code (simplified without AMD compatibility)
+- Minified size should be under 4KB
 - Zero external dependencies
-- Maintain backward compatibility with existing ~86 line implementation
+- Maintain backward compatibility with existing core module API
 
 ### NFR-4: Error Handling
 - Must provide clear error messages for common mistakes
@@ -137,23 +117,7 @@ module.export("http", { get: fetch });
 module.export("dom", { render: (data) => document.body.innerHTML = data });
 ```
 
-### UC-3: AMD Compatibility
-```javascript
-// Using define() syntax
-define("math-utils", ["config"], (config) => {
-  return {
-    add: (a, b) => a + b,
-    multiply: (a, b) => a * b * config.factor
-  };
-});
-
-// Using require() syntax
-require(["math-utils"], (math) => {
-  console.log(math.add(2, 3));
-});
-```
-
-### UC-4: Debug and Troubleshooting
+### UC-3: Debug and Troubleshooting
 ```javascript
 // Check what modules are available
 module.debug();

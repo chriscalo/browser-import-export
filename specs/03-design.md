@@ -6,27 +6,20 @@
 
 After analyzing the current implementation against the specifications, several aspects of the current code should be preserved or serve as inspiration:
 
-### 1. AMD Compatibility Layer
-The current implementation's `define()` and `require()` functions provide valuable compatibility:
-- **Familiar syntax** for developers from AMD/RequireJS ecosystems  
-- **Callback-style APIs** as alternative to async/await
-- **Proven error handling** with clear validation messages
-- **Complete feature parity** with AMD specification
-
-### 2. Simplicity and Clarity
+### 1. Simplicity and Clarity
 Current implementation strengths:
 - **Straightforward promise-based architecture** without over-engineering
 - **Clear error messages** that are easy to understand
 - **Minimal API surface** that's easy to learn
 - **Readable code structure** that's easy to maintain
 
-### 3. Proven Debugging Experience
+### 2. Proven Debugging Experience
 The current `module.debug()` implementation is effective:
 - **Simple console.log approach** works well for troubleshooting
 - **Direct registry inspection** shows module resolution state clearly
 - **No complex debugging infrastructure** needed
 
-### 4. Robust Argument Validation
+### 3. Robust Argument Validation
 Current error handling provides good examples:
 ```javascript
 // Clear, specific error messages
@@ -74,24 +67,11 @@ globalThis.module = {
   export: exportModule,   // Export a module  
   debug                   // Debug utility
 };
-
-// AMD compatibility (preserving current implementation strength)
-globalThis.define = define;   // AMD-style module definition
-globalThis.require = require; // AMD-style module consumption
 ```
 
 ## Key Design Decisions
 
-### Decision 1: Preserve AMD Compatibility
-
-**Rationale**: The current implementation's AMD support (`define()` and `require()`) is valuable for:
-- Familiarity for developers coming from RequireJS/AMD ecosystems
-- Compatibility with existing codebases
-- Alternative syntax for developers who prefer callback-style APIs
-
-**Implementation**: Keep the current AMD functions alongside the new module system, using the same underlying registry.
-
-### Decision 2: Hybrid Array/Object Returns
+### Decision 1: Hybrid Array/Object Returns
 
 **Rationale**: Supporting both destructuring patterns increases developer flexibility:
 ```javascript
@@ -104,7 +84,7 @@ const { utils, dom } = await module.import("utils", "dom");
 
 **Implementation**: Return objects that extend Array prototype and add named properties.
 
-### Decision 3: Name Transformation Strategy
+### Decision 2: Name Transformation Strategy
 
 **Current approach weakness**: The current implementation doesn't transform names, limiting object destructuring.
 
@@ -124,7 +104,7 @@ Examples:
 - `"@utils/string"` → `"utilsString"`
 - `"lodash.debounce"` → `"lodashDebounce"`
 
-### Decision 4: Promise.withResolvers() Usage
+### Decision 3: Promise.withResolvers() Usage
 
 **Rationale**: Modern Promise constructor pattern is cleaner than creating promises with external resolve/reject functions.
 
@@ -143,19 +123,16 @@ if (!Promise.withResolvers) {
 }
 ```
 
-### Decision 5: Error Handling Strategy  
+### Decision 4: Error Handling Strategy  
 
 **Current implementation strength**: Simple error handling that's easy to understand.
 
 **Enhanced approach**: More descriptive errors while maintaining simplicity:
 
 ```javascript
-// Current: Generic error
-throw new Error(`callback is not a function`);
-
 // Enhanced: Contextual error  
 throw new Error(`[module.export] Module "${name}" already exported`);
-throw new Error(`[define] callback must be a function, got ${typeof callback}`);
+throw new Error(`[module.import] Invalid module name: ${name}`);
 ```
 
 ## API Specification
@@ -239,40 +216,14 @@ function exportModule(name, value) {
 }
 ```
 
-### AMD Compatibility Layer
-
-**Preserve current implementation**: The existing `define()` and `require()` functions work well and should be maintained:
-
-```javascript
-// From current implementation - preserve this design
-async function define(name, deps = [], callback) {
-  if (arguments.length < 2) {
-    throw `define() called with ${arguments.length} arguments. 2 or 3 arguments expected.`;
-  }
-  
-  if (arguments.length === 2) {
-    [name, callback] = arguments;
-    deps = [];
-  }
-  
-  const resolvedDeps = await Promise.all(deps.map(module.import)); 
-  const value = await callback(...resolvedDeps);
-  module.export(name, value);
-}
-```
-
-This preserves a valuable feature that differentiates this library from others.
-
 ## Migration Strategy
 
 ### Backward Compatibility
 
-All existing APIs remain unchanged:
+All existing core APIs remain unchanged:
 - `module.import()` - enhanced with object destructuring support
 - `module.export()` - same API, better error messages  
 - `module.debug()` - same functionality
-- `define()` - preserved exactly as-is
-- `require()` - preserved exactly as-is
 
 ### New Features
 
@@ -307,12 +258,7 @@ All existing APIs remain unchanged:
    - Kebab case: `"dom-helpers"` → `"domHelpers"`  
    - Special chars: `"@utils/string"` → `"utilsString"`
 
-4. **AMD Compatibility**:
-   - `define()` with and without dependencies
-   - `require()` with dependencies
-   - Interop between `define/require` and `module.import/export`
-
-5. **Error Handling**:
+4. **Error Handling**:
    - Duplicate exports
    - Invalid arguments
    - Missing dependencies
@@ -343,13 +289,12 @@ Test in multiple browsers to ensure compatibility:
 
 ## Implementation Summary
 
-The finalized design preserves the best aspects of the current implementation while adding the sophisticated features from the specification:
+The finalized design focuses on the core module system while adding sophisticated features from the specification:
 
 **Preserved from current**:
-- AMD compatibility (`define()`, `require()`)
-- Simple promise-based architecture
-- Clear error messages and debugging
-- Zero dependencies and minimal size
+- Simple promise-based architecture without over-engineering
+- Clear error messages and debugging utilities
+- Zero dependencies and minimal footprint
 
 **Added from specification**:
 - Object destructuring support with name transformation
@@ -357,4 +302,4 @@ The finalized design preserves the best aspects of the current implementation wh
 - Modern Promise patterns (`Promise.withResolvers()`)
 - Enhanced documentation and typing
 
-This creates a robust, backward-compatible module system that serves both simple prototyping needs and more advanced modular development patterns.
+This creates a focused, backward-compatible module system that serves both simple prototyping needs and more advanced modular development patterns.

@@ -21,14 +21,13 @@ This module system provides:
 - **Flexible import/export API**: Simple `module.import()` and `module.export()` functions
 - **Multiple import patterns**: Support for both array and object destructuring
 - **Name transformation**: Automatic conversion of kebab-case module names to camelCase properties
-- **AMD compatibility**: Optional `define()` and `require()` functions for familiar patterns
 - **Zero dependencies**: Pure JavaScript implementation with no external dependencies
 
 ## Key Benefits
 
 1. **Write code in logical order**: Define modules in the order that makes sense, not dependency order
 2. **Rapid prototyping**: No build step or compilation required
-3. **Familiar patterns**: ES modules-inspired API with optional AMD compatibility
+3. **Familiar patterns**: ES modules-inspired API that's easy to learn
 4. **Flexible destructuring**: Support for both array and object destructuring of imports
 5. **Smart name transformation**: Automatic camelCase conversion for property access
 6. **Flexible usage**: Works with inline scripts, external files, or CDN distribution
@@ -40,7 +39,7 @@ This module system provides:
 - **Quick prototypes**: Testing ideas and concepts rapidly
 - **Educational content**: Demonstrating modular programming concepts
 - **Code experiments**: Trying out APIs or libraries in isolation
-- **Legacy browser support**: Module-like patterns in environments without native ES modules
+- **Browser environments**: Module-like patterns in environments without native ES modules
 
 ## Design Philosophy
 
