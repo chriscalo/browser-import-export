@@ -70,9 +70,7 @@
 - Should gracefully handle missing APIs (with appropriate polyfills if needed)
 - Must not require transpilation or build tools
 
-### NFR-3: Size Constraints
-- Total implementation should be under 150 lines of code (simplified without AMD compatibility)
-- Minified size should be under 4KB
+### NFR-3: Dependencies
 - No external dependencies should be bundled into the distribution that end users consume from this package (dev dependencies okay)
 
 ### NFR-4: Error Handling
@@ -87,7 +85,7 @@
 - Return types should be consistent
 
 ### NFR-6: Publishing and Distribution
-- Must auto-publish to GitHub Packages on release
+- Must auto-publish to GitHub Packages on push of version change
 - Package must be available for installation via npm from GitHub registry
 - Must use GitHub Actions workflow triggered by version tags (v*.*.*) or manual dispatch
 - Example workflow implementation:
@@ -184,12 +182,12 @@ try {
 ### Technical Constraints
 - Must work without build tools or bundlers
 - Must not modify global prototypes or built-ins
-- Must be compatible with strict mode
 - Implementation must be self-contained in a single file
 
 ### Business Constraints  
-- Implementation must be self-contained in a single file
+- No specific business constraints beyond technical requirements
 
 ### Security Constraints
 - Must not eval() arbitrary code
 - Must not expose internal implementation details globally
+

@@ -12,8 +12,8 @@ Implementation strengths:
 - **Readable code structure** that's easy to maintain
 
 ### 2. Proven Debugging Experience
-The `module.debug()` implementation is effective:
-- **Simple console.log approach** works well for troubleshooting
+The `module.debug()` implementation should call `console.log()` directly:
+- **Direct console.log() approach** works well for troubleshooting
 - **Direct registry inspection** shows module resolution state clearly
 - **No complex debugging infrastructure** needed
 
@@ -160,9 +160,9 @@ const result = await module.import("utils", "dom-helpers");
 
 **Signature**: `debug() => void`
 
-**Behavior**: Log registry state to console for debugging.
+**Behavior**: Calls `console.log()` directly to log registry state for debugging.
 
-**Implementation approach**: Simple `console.log(modules)` is effective and lightweight.
+**Implementation approach**: Direct `console.log(modules)` call is effective and lightweight.
 
 ## Implementation Architecture
 
